@@ -1,18 +1,4 @@
 {
-	"compilerOptions": {
-		"declaration": false,
-		"lib": ["es2015"],
-		"module": "commonjs",
-		"moduleResolution": "node",
-		"noFallthroughCasesInSwitch": true,
-		"noImplicitAny": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"outDir": ".",
-		"preserveConstEnums": true,
-		"sourceMap": true,
-		"strictNullChecks": true,
-		"target": "es2016"
-	},
-	"files": ["./index.ts"]
+  "extends": "@total-typescript/tsconfig/tsc/no-dom/app",
+  "files": ["./index.ts"]
 }
