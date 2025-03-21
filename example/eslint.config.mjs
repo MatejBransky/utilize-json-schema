@@ -4,6 +4,6 @@ import utilizeConfig from '@utilize/eslint-config/node';
 export default [
 	...utilizeConfig,
 	{
-		ignores: ['dist', 'test/__fixtures__/**'],
+		ignores: ['dist', '**/*.js'],
 	},
 ];
