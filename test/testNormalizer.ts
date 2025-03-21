@@ -1,28 +1,36 @@
-import test from 'ava'
-import {readdirSync} from 'fs'
-import {join} from 'path'
-import {JSONSchema, Options, DEFAULT_OPTIONS} from '../src'
-import {link} from '../src/linker'
-import {normalize} from '../src/normalizer'
+import test from 'ava';
+
+import { readdirSync } from 'fs';
+import { join } from 'path';
+
+import { JSONSchema, Options, DEFAULT_OPTIONS } from '../src';
+import { link } from '../src/linker';
+import { normalize } from '../src/normalizer';
 
 interface JSONTestCase {
-  name: string
-  in: JSONSchema
-  out: JSONSchema
-  options?: Options
+	name: string;
+	in: JSONSchema;
+	out: JSONSchema;
+	options?: Options;
 }
 
-const normalizerDir = __dirname + '/../../test/normalizer'
+const normalizerDir = __dirname + '/../../test/normalizer';
 
 export function run() {
-  readdirSync(normalizerDir)
-    .filter(_ => /^.*\.json$/.test(_))
-    .map(_ => join(normalizerDir, _))
-    .map(_ => [_, require(_)] as [string, JSONTestCase])
-    .forEach(([filename, json]: [string, JSONTestCase]) => {
-      test(json.name, t => {
-        const normalized = normalize(link(json.in), new WeakMap(), filename, json.options ?? DEFAULT_OPTIONS)
-        t.deepEqual(json.out, normalized)
-      })
-    })
+	readdirSync(normalizerDir)
+		.filter((_) => /^.*\.json$/.test(_))
+		.map((_) => join(normalizerDir, _))
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
+		.map((_) => [_, require(_)] as [string, JSONTestCase])
+		.forEach(([filename, json]: [string, JSONTestCase]) => {
+			test(json.name, (t) => {
+				const normalized = normalize(
+					link(json.in),
+					new WeakMap(),
+					filename,
+					json.options ?? DEFAULT_OPTIONS
+				);
+				t.deepEqual(json.out, normalized);
+			});
+		});
 }

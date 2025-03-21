@@ -1,6 +1,6 @@
 # Changelog
 
-*Note: This is a partial changelog, covering significant & breaking changes. For a full list of changes, please consult the [commit log](https://github.com/bcherny/json-schema-to-typescript/commits).
+\*Note: This is a partial changelog, covering significant & breaking changes. For a full list of changes, please consult the [commit log](https://github.com/bcherny/json-schema-to-typescript/commits).
 
 ## 15.0.0
 
@@ -55,7 +55,6 @@ This is a major release with lots of bugfixes, some of which may change emitted 
 - 7aa353d Feat: Add support for `$id` (#436)
 - 59747b1 Feat: Add support for specifying a default for `additionalProperties` (#335)
 - 966cca5 Cleanup: Drop support for Node 10
-
 
 ## 10.1.0
 

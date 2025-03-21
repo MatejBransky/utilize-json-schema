@@ -1,4 +1,5 @@
 import test from 'ava'
+
 import {link} from '../src/linker'
 import {pathTransform, generateName, isSchemaLike} from '../src/utils'
 
