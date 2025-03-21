@@ -14,7 +14,7 @@ import type {
   SchemaType,
 } from './types/JSONSchema'
 import {Intersection, Types, getRootSchema, isBoolean, isPrimitive} from './types/JSONSchema'
-import {generateName, log, maybeStripDefault} from './utils'
+import {generateName, maybeStripDefault} from './utils'
 
 export type Processed = Map<NormalizedJSONSchema, Map<SchemaType, AST>>
 
@@ -45,14 +45,12 @@ export function parse(
       ast.params.push(parseAsTypeWithCache(schema, type, options, keyName, processed, usedNames))
     })
 
-    log('blue', 'parser', 'Types:', [...types], 'Input:', schema, 'Output:', ast)
     return ast
   }
 
   if (types.size === 1) {
     const type = [...types][0]
     const ast = parseAsTypeWithCache(schema, type, options, keyName, processed, usedNames)
-    log('blue', 'parser', 'Type:', type, 'Input:', schema, 'Output:', ast)
     return ast
   }
 

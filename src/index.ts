@@ -1,23 +1,19 @@
-import {readFileSync} from 'fs'
-import {JSONSchema4} from 'json-schema'
 import {ParserOptions as $RefOptions} from '@apidevtools/json-schema-ref-parser'
+import {JSONSchema4} from 'json-schema'
 import {cloneDeep, endsWith, merge} from 'lodash'
-import {dirname} from 'path'
 import {Options as PrettierOptions} from 'prettier'
 import {format} from './formatter'
 import {generate} from './generator'
+import {link} from './linker'
 import {normalize} from './normalizer'
 import {optimize} from './optimizer'
+import {validateOptions} from './optionValidator'
 import {parse} from './parser'
 import {dereference} from './resolver'
-import {error, stripExtension, Try, log, parseFileAsJSONSchema} from './utils'
-import {validate} from './validator'
-import {isDeepStrictEqual} from 'util'
-import {link} from './linker'
-import {validateOptions} from './optionValidator'
 import {JSONSchema as LinkedJSONSchema} from './types/JSONSchema'
+import {validate} from './validator'
 
-export {EnumJSONSchema, JSONSchema, NamedEnumJSONSchema, CustomTypeJSONSchema} from './types/JSONSchema'
+export {CustomTypeJSONSchema, EnumJSONSchema, JSONSchema, NamedEnumJSONSchema} from './types/JSONSchema'
 
 export interface Options {
   /**
@@ -117,30 +113,10 @@ export const DEFAULT_OPTIONS: Options = {
   unknownAny: true,
 }
 
-export function compileFromFile(filename: string, options: Partial<Options> = DEFAULT_OPTIONS): Promise<string> {
-  const schema = parseAsJSONSchema(filename)
-  return compile(schema, stripExtension(filename), {cwd: dirname(filename), ...options})
-}
-
-function parseAsJSONSchema(filename: string): JSONSchema4 {
-  const contents = Try(
-    () => readFileSync(filename),
-    () => {
-      throw new ReferenceError(`Unable to read file "${filename}"`)
-    },
-  )
-  return parseFileAsJSONSchema(filename, contents.toString())
-}
-
 export async function compile(schema: JSONSchema4, name: string, options: Partial<Options> = {}): Promise<string> {
   validateOptions(options)
 
   const _options = merge({}, DEFAULT_OPTIONS, options)
-
-  const start = Date.now()
-  function time() {
-    return `(${Date.now() - start}ms)`
-  }
 
   // normalize options
   if (!endsWith(_options.cwd, '/')) {
@@ -151,42 +127,24 @@ export async function compile(schema: JSONSchema4, name: string, options: Partia
   const _schema = cloneDeep(schema)
 
   const {dereferencedPaths, dereferencedSchema} = await dereference(_schema, _options)
-  if (process.env.VERBOSE) {
-    if (isDeepStrictEqual(_schema, dereferencedSchema)) {
-      log('green', 'dereferencer', time(), '✅ No change')
-    } else {
-      log('green', 'dereferencer', time(), '✅ Result:', dereferencedSchema)
-    }
-  }
 
   const linked = link(dereferencedSchema)
-  if (process.env.VERBOSE) {
-    log('green', 'linker', time(), '✅ No change')
-  }
 
   const errors = validate(linked, name)
   if (errors.length) {
-    errors.forEach(_ => error(_))
+    errors.forEach(_ => console.error(_))
     throw new ValidationError()
-  }
-  if (process.env.VERBOSE) {
-    log('green', 'validator', time(), '✅ No change')
   }
 
   const normalized = normalize(linked, dereferencedPaths, name, _options)
-  log('yellow', 'normalizer', time(), '✅ Result:', normalized)
 
   const parsed = parse(normalized, _options)
-  log('blue', 'parser', time(), '✅ Result:', parsed)
 
   const optimized = optimize(parsed, _options)
-  log('cyan', 'optimizer', time(), '✅ Result:', optimized)
 
   const generated = generate(optimized, _options)
-  log('magenta', 'generator', time(), '✅ Result:', generated)
 
   const formatted = await format(generated, _options)
-  log('white', 'formatter', time(), '✅ Result:', formatted)
 
   return formatted
 }

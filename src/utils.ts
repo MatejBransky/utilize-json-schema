@@ -1,18 +1,6 @@
 import {deburr, isPlainObject, trim, upperFirst} from 'lodash'
-import {basename, dirname, extname, normalize, sep, posix} from 'path'
+import {basename, dirname, extname, normalize, posix, sep} from 'path'
 import {Intersection, JSONSchema, LinkedJSONSchema, NormalizedJSONSchema, Parent} from './types/JSONSchema'
-import {JSONSchema4} from 'json-schema'
-import yaml from 'js-yaml'
-import type {Format} from 'cli-color'
-
-// TODO: pull out into a separate package
-export function Try<T>(fn: () => T, err: (e: Error) => any): T {
-  try {
-    return fn()
-  } catch (e) {
-    return err(e as Error)
-  }
-}
 
 // keys that shouldn't be traversed by the catchall step
 const BLACKLISTED_KEYS = new Set([
@@ -226,51 +214,6 @@ export function generateName(from: string, usedNames: Set<string>) {
   return name
 }
 
-export function error(...messages: any[]): void {
-  if (!process.env.VERBOSE) {
-    return console.error(messages)
-  }
-  console.error(getStyledTextForLogging('red')?.('error'), ...messages)
-}
-
-type LogStyle = 'blue' | 'cyan' | 'green' | 'magenta' | 'red' | 'white' | 'yellow'
-
-export function log(style: LogStyle, title: string, ...messages: unknown[]): void {
-  if (!process.env.VERBOSE) {
-    return
-  }
-  let lastMessage = null
-  if (messages.length > 1 && typeof messages[messages.length - 1] !== 'string') {
-    lastMessage = messages.splice(messages.length - 1, 1)
-  }
-  console.info(color()?.whiteBright.bgCyan('debug'), getStyledTextForLogging(style)?.(title), ...messages)
-  if (lastMessage) {
-    console.dir(lastMessage, {depth: 6, maxArrayLength: 6})
-  }
-}
-
-function getStyledTextForLogging(style: LogStyle): ((text: string) => string) | undefined {
-  if (!process.env.VERBOSE) {
-    return
-  }
-  switch (style) {
-    case 'blue':
-      return color()?.whiteBright.bgBlue
-    case 'cyan':
-      return color()?.whiteBright.bgCyan
-    case 'green':
-      return color()?.whiteBright.bgGreen
-    case 'magenta':
-      return color()?.whiteBright.bgMagenta
-    case 'red':
-      return color()?.whiteBright.bgRedBright
-    case 'white':
-      return color()?.black.bgWhite
-    case 'yellow':
-      return color()?.whiteBright.bgYellow
-  }
-}
-
 /**
  * escape block comments in schema descriptions so that they don't unexpectedly close JSDoc comments in generated typescript interfaces
  */
@@ -389,34 +332,4 @@ export function isSchemaLike(schema: any): schema is LinkedJSONSchema {
   }
 
   return true
-}
-
-export function parseFileAsJSONSchema(filename: string | null, contents: string): JSONSchema4 {
-  if (filename != null && isYaml(filename)) {
-    return Try(
-      () => yaml.load(contents.toString()) as JSONSchema4,
-      () => {
-        throw new TypeError(`Error parsing YML in file "${filename}"`)
-      },
-    )
-  }
-
-  return Try(
-    () => JSON.parse(contents.toString()),
-    () => {
-      throw new TypeError(`Error parsing JSON in file "${filename}"`)
-    },
-  )
-}
-
-function isYaml(filename: string) {
-  return filename.endsWith('.yaml') || filename.endsWith('.yml')
-}
-
-function color(): Format {
-  let cliColor
-  try {
-    cliColor = require('cli-color')
-  } catch {}
-  return cliColor
 }

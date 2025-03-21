@@ -4,7 +4,7 @@ import {readdirSync} from 'fs'
 import {find, merge} from 'lodash'
 import {join} from 'path'
 import {compile, JSONSchema, Options} from '../src'
-import {log, stripExtension} from '../src/utils'
+import {stripExtension} from '../src/utils'
 import {getWithCache} from './http'
 
 const dir = __dirname + '/e2e'
@@ -50,8 +50,6 @@ const httpWithCacheResolver = {
 }
 
 function runOne(exports: TestCase, name: string) {
-  log('blue', 'Running test', name)
-
   const options = merge(exports.options, {$refOptions: {resolve: {http: httpWithCacheResolver}}})
 
   test(name, async t => {
