@@ -4,7 +4,8 @@
 		"allowJs": false,
 		"module": "ESNext",
 		"moduleResolution": "Node",
-		"outDir": "."
+		"outDir": ".",
+		"sourceMap": false
 	},
 	"files": ["index.ts"]
 }

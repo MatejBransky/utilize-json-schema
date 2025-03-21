@@ -25,7 +25,8 @@
 	},
 	"dependencies": {
 		"@types/node": "^22.13.10",
-		"@utilize/json-schema-to-typescript": "workspace:*",
+		"@utilize/json-schema-parser": "workspace:*",
+		"@utilize/json-schema-typescript-generator": "workspace:*",
 		"typescript": "5.8.2"
 	},
 	"devDependencies": {
