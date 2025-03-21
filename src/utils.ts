@@ -202,7 +202,7 @@ export function toSafeString(string: string) {
       .replace(/\s+([a-zA-Z])/g, match => trim(match.toUpperCase()))
       // remove remaining whitespace
       .replace(/\s/g, ''),
-  )
+  ) as string
 }
 
 export function generateName(from: string, usedNames: Set<string>) {
